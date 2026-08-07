@@ -1,0 +1,44 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class User(BaseModel):
+    id: int
+    name: str
+    email: str
+
+users = []
+
+@app.get("/")
+def home():
+    return {"message": "Hello Growfinix!"}
+
+@app.post("/users")
+def create_user(user: User):
+    users.append(user)
+    return {"message": "User added successfully", "user": user}
+
+@app.get("/users")
+def get_users():
+    return users
+@app.get("/users/{user_id}")
+def get_user(user_id: int):
+    for user in users:
+        if user.id == user_id:
+            return user
+    return {"message": "User not found"}
+@app.put("/users/{user_id}")
+def update_user(user_id: int, updated_user: User):
+    for index, user in enumerate(users):
+        if user.id == user_id:
+            users[index] = updated_user
+            return {"message": "User updated successfully"}
+    return {"message": "User not found"}
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    for user in users:
+        if user.id == user_id:
+            users.remove(user)
+            return {"message": "User deleted successfully"}
+    return {"message": "User not found"}
